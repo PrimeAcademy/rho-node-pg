@@ -28,7 +28,7 @@ router.get('/', function(req, res){
     // 2. (optional)  input parameters
     // 3. callback function to execute once the query is finished
     //      takes an error object and a result object as args
-    client.query('SELECT * FROM books;', function(err, result){
+    client.query('SELECT * FROM books ORDER BY title;', function(err, result){
       done();
       if (err) {
         console.log('Error querying the DB', err);

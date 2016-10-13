@@ -4,6 +4,7 @@ $(function() {
   $('#book-form').on('submit', addBook);
 
   $('#book-list').on('click', '.save', updateBook);
+  $('#book-list').on('click', '.delete', deleteBook);
 });
 
 function getBooks() {
@@ -29,9 +30,13 @@ function displayBooks(response) {
     $form.append('<input type="date" name="published" value="' + date.toISOString().slice(0,10) + '"/>');
 
     // make a button and store the id data on it
-    var $button = $('<button class="save">Save!</button>');
-    $button.data('id', book.id);
-    $form.append($button);
+    var $saveButton = $('<button class="save">Save!</button>');
+    $saveButton.data('id', book.id);
+    $form.append($saveButton);
+
+    var $deleteButton = $('<button class="delete">Delete!</button>');
+    $deleteButton.data('id', book.id);
+    $form.append($deleteButton);
 
 
     $li.append($form);
@@ -42,6 +47,7 @@ function displayBooks(response) {
 function addBook(event) {
   event.preventDefault();
 
+  // title=someTitle&author=someAuthor&published=today
   var bookData = $(this).serialize();
 
   $.ajax({
@@ -66,6 +72,18 @@ function updateBook(event) {
     type: 'PUT',
     url: '/books/' + $button.data('id'),
     data: data,
+    success: getBooks
+  });
+}
+
+function deleteBook(event) {
+  event.preventDefault();
+
+  var bookId = $(this).data('id');
+
+  $.ajax({
+    type: 'DELETE',
+    url: '/books/' + bookId,
     success: getBooks
   });
 }
