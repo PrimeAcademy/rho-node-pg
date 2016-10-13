@@ -2,6 +2,8 @@ $(function() {
   getBooks();
 
   $('#book-form').on('submit', addBook);
+
+  $('#book-list').on('click', '.save', updateBook);
 });
 
 function getBooks() {
@@ -18,10 +20,21 @@ function displayBooks(response) {
   $list.empty();
   response.forEach(function(book) {
     var $li = $('<li></li>');
-    $li.append('<p><strong>' + book.title + '</strong></p>');
-    $li.append('<p><em>' + book.author + '</em></p>');
+    var $form = $('<form></form>');
+    $form.append('<input type="text" name="title" value="' + book.title + '"/>');
+    $form.append('<input type="text" name="author" value="' + book.author + '"/>');
     var date = new Date(book.published);
-    $li.append('<p><time>' + date.toDateString() + '</time></p>');
+
+    // surely there must be a better way to format this date
+    $form.append('<input type="date" name="published" value="' + date.toISOString().slice(0,10) + '"/>');
+
+    // make a button and store the id data on it
+    var $button = $('<button class="save">Save!</button>');
+    $button.data('id', book.id);
+    $form.append($button);
+
+
+    $li.append($form);
     $list.append($li);
   });
 }
@@ -39,4 +52,20 @@ function addBook(event) {
   });
 
   $(this).find('input').val('');
+}
+
+function updateBook(event) {
+  event.preventDefault();
+
+  var $button = $(this);
+  var $form = $button.closest('form');
+
+  var data = $form.serialize();
+
+  $.ajax({
+    type: 'PUT',
+    url: '/books/' + $button.data('id'),
+    data: data,
+    success: getBooks
+  });
 }
